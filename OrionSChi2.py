@@ -65,36 +65,9 @@ def chi2(fmodel,fobs,ferr,fileout):
     T = gastemp[indices[1]]
     n = gasdens[indices[2]]
     print N,T,n
-    #print chi2_min.shape
-    
-    #PLOT THE MODEL VS OBSERVATION
-    #Freq = [531.7163,620.3040,708.8770,797.4333,885.9707,974.4872,1062.9807]
-    #plt.scatter(Freq,obs,s=1,marker='o',edgecolor='none',label = 'Observation')
-    #plt.scatter(Freq,expected,s=1,marker='o',edgecolor='none',label = 'Model')
-    #plt.xlabel('Frequency (GHz)')
-    #plt.ylabel('Intensity (K*Km/s)')
-    #plt.title('Model vs Observations')
-    #plt.savefig(filename=file_label[i]+'-'+file_label[j]+'-T1-Tdust.eps')
-    #plt.show()
-    
-    #########
-    # PLOT THE CUBE TO SEE CHI-2 RANGE!
-    #########
-    #fig = plt.figure()
-    #ax = Axes3D(fig)
-    #ax.scatter3D(cdens,gastemp,gasdens)#,c=chi2_sum)
-    #data_cube = np.zeros(shape=(ncd,ntmp,ndens))
-    #for i in range(ncd):
-    #    print i
-    #    for j in range(ntmp):
-     #       for k in range(ndens):
-     #           data_cube = data_cube[cdens[i],gastemp[j],gasdens[k]]
+    #print chi2_min.shape   
                 
-    #color=chi2_sum.reshape[chi2_sum[0]*chi2_sum[1]]
-    for i in range(ncd):    ###SIINNNNNNNN
-    #    plt.scatter(cdens,gastemp,c=color)
-        #plt.plot(chi2_sum[i,:,:])
-        #plt.imshow(chi2_sum[i,:,:],cmap='coolwarm')        
+    for i in range(ncd):      
         plt.imshow(chi2_sum[i,:,:],
                    extent=(gastemp[0],gastemp[-1],np.log10(gasdens[0]),np.log10(gasdens[-1])),
                     aspect='auto',cmap='coolwarm',
@@ -104,16 +77,16 @@ def chi2(fmodel,fobs,ferr,fileout):
         plt.title(i)
         plt.show()
         plt.clf()
-    #plt.scatter(cdens,gastemp,marker='o',c=chi2_sum[:,:,0])
-    
-    #plt.contour(chi2_sum[:,:,0], levels = chi2_sum[:,:,0], colors = 'r')
-    #plt.xlabel(mol_label[i]+' Intensity')
-    #plt.ylabel(mol_label[j]+' Intensity')
-    #plt.title('Taurus-1 Spatial Correlation')
-    #plt.colorbar()
+      
+    #PLOT THE MODEL VS OBSERVATION
+    Freq = [531.7163,620.3040,708.8770,797.4333,885.9707,974.4872,1062.9807]
+    plt.scatter(Freq,obs,s=1,marker='o',edgecolor='none',label = 'Observation')
+    plt.scatter(Freq,expected,s=1,marker='o',edgecolor='none',label = 'Model')
+    plt.xlabel('Frequency (GHz)')
+    plt.ylabel('Intensity (K*Km/s)')
+    plt.title('Model vs Observations')
     #plt.savefig(filename=file_label[i]+'-'+file_label[j]+'-T1-Tdust.eps')
-    #plt.clf()
-    #plt.show()
+    plt.show()
     
     pyfits.writeto("/Users/willwaalkes/Desktop/HCN_Research/N-Best-Fit/"+fileout+"-chi2.fits", chi2_min, hdr, clobber=True)
 

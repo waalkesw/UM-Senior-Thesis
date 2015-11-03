@@ -24,24 +24,30 @@ k =  1.3806503e-16 # erg /K
 tbg = 2.73   # cmb temp
 dv = 0.4
 
+
 fmt = "%7.2e cm^-2"
 
-moles = ['hcn']
-frequencies = [[531.7163,620.3040,708.8770,797.4333,885.9707,974.4872,1062.9807]]
+# Collision partners
+#
+# ph2co -> ph2, oh2
+# oh2co -> ph2, oh2
+
+moles = ['hc15n']
+frequencies = [[516.2606]]
 
 dir_input = "/Users/willwaalkes/Desktop/Radex/data/inp/"
 dir_output = "/Users/willwaalkes/Desktop/Radex/data/out/"
 
 ############################################################
 
-# This routine will write the input file for RADEX
+# this routine will write the input file for RADEX
 def write_input(file,source,tkin,nh2,mole,cdmol,freqs):
     ne = 0.1*nh2   #electron density
     op = 3    #Ortho/Para ratio
     nph2 = nh2/(op+1)  #Total density is the sum of O and P densities
     noh2 = nph2*op   #getting O H2
-    file.write(mole+'.dat\n') #THESE ALL WRITE A SINGLE LINE IN THE INPUT FILE
-    file.write(dir_output+source+'-radex-'+mole+'.out\n')
+    file.write(mole+'@xpol.dat\n') #THESE ALL WRITE A SINGLE LINE IN THE INPUT FILE
+    file.write(dir_output+source+'-radex-'+mole+'.out\n') #
     file.write(str(freqs[0]-0.001)+' '+str(freqs[-1]+0.001)+'\n') 
     file.write(str(tkin)+'\n')
     file.write('2\n')
@@ -53,17 +59,13 @@ def write_input(file,source,tkin,nh2,mole,cdmol,freqs):
     file.write(str(cdmol)+'\n')
     file.write(str(dv)+'\n')
  
-# This reads the output created by RADEX and extracts the information you want: tkin,density,column density and flux 
+# this reads the output created by RADEX and extracts the information you want: tkin,density,column density and flux 
 def read_radex(results,freq):
     line  = results.readline()
     words = line.split()
-    try:
-        while (words[1] != "T(kin)"):
-            line  = results.readline()
-            words = line.split()
-    except IndexError:
-        print words[0]
-        os.sys.exit()
+    while (words[1] != "T(kin)"):
+        line  = results.readline()
+        words = line.split()
     tkin = words[-1] 
     line  = results.readline()
     words = line.split()
@@ -87,20 +89,19 @@ def read_radex(results,freq):
         line  = results.readline()
         words = line.split()  
         ftmp  = float(words[4])
-    try:
-        TR = float(words[-5])
-    except ValueError:
-        TR = np.nan
+    TR = float(words[-5])
+    #print freq,ftmp,TR
     return tkin,dens,cdmol,TR
  
 # Begin of main program
 def main(source):
-    gastemp = np.linspace(60,220,100)
-    gasdens = np.logspace(2,8,100)
-    cdens = np.logspace(14,16,100)
-    ncd = len(cdens)
-    ntmp = len(gastemp)
-    ndens = len(gasdens)
+    # Read Tdust and nH2 data 
+    tgas = np.linspace()
+    ngas = np.linspace()  # determine the H2 density from the H2 column density map. 
+    cdens = np.linspace(1e16,1e19,50)
+    cdmol =  tgas*0
+
+    #tgas = tgas[0:10,0:10]
 
     for imole in range(len(moles)):
         mole  = moles[imole]
@@ -112,16 +113,16 @@ def main(source):
 
         # this loop creates the input file for RADEX
         file = open(dir_input+source+'-radex-'+mole+'.inp','w')
-        for icd in range(len(cdens)):
-            for i in range(len(gastemp)):
-                for j in range(len(gasdens)):
+        for i in range(len(gastemp)):
+            for j in range(len(gasdens)):
+                for icd in range(ncd):
                     tgas = gastemp[i]
                     ngas = gasdens[j]
                     cd = cdens[icd]
                     write_input(file,source,tgas,ngas,mole,cd,freqs)
                     number_models += 1
-                   
-                    if((i==ntmp-1) & (j==ndens-1) & (icd==ncd-1)): 
+
+                    if((i==tgas[-2]) & (icd==ncd-1)): 
                         file.write('0\n')
                         file.close()
                     else:
@@ -129,8 +130,7 @@ def main(source):
 
         start = time.time()
          
-        ## RUN THE MODELS
-         
+        ## run the models
         print "Running ",number_models," models"
         os.system('radex < '+dir_input+source+'-radex-'+mole+'.inp > /dev/null')
       
@@ -138,31 +138,37 @@ def main(source):
         duration = stop-start
         print "Run time = ",duration," seconds"
 
+        #print "test"
         #os.sys.exit()
-
-
-        # READ and SAVE model results 
+        # Read and save model results 
 
         for freq in freqs:
-
-            tgas_radex = np.zeros(shape=(ncd,ntmp,ndens))
-            ngas_radex = np.zeros(shape=(ncd,ntmp,ndens))
-            cdmol_radex = np.zeros(shape=(ncd,ntmp,ndens))
-            TR_radex = np.zeros(shape=(ncd,ntmp,ndens))
+######DO I NEED TO CHANGE THESE FOR HIGHER DIMENSIONS, IF TGAS AND NGAS ARE BOTH VARIABLE
+            tgas_radex = np.zeros(shape=(ncd,len(gastemp)))
+            ngas_radex = np.zeros(shape=(ncd,len(gastemp)))
+            cdmol_radex = np.zeros(shape=(ncd,len(gastemp)))
+            TR_radex = np.zeros(shape=(ncd,len(gastemp)))
 
             print "Reading results for line "+mole+" "+str(freq)
             results = open(dir_output+source+'-radex-'+mole+'.out','r')
-            for i in range(ncd):
-                for j in range(ntmp):
-                    for k in range(ndens):
-                        tgas_radex[i,j,k],ngas_radex[i,j,k],cdmol_radex[i,j,k],TR_radex[i,j,k] = read_radex(results,freq)
-                        #print tgas_radex[k,i,j],ngas_radex[k,i,j],cdmol_radex[k,i,j],TR_radex[k,i,j]
+            for i in range(len(tgas)):
+                for j in range(ncd):
+                    tgas_radex[i,j],ngas_radex[i,j],cdmol_radex[i,j],TR_radex[i,j] = read_radex(results,freq)
+                    #print tgas_radex[k,i,j],ngas_radex[k,i,j],cdmol_radex[k,i,j],TR_radex[k,i,j]
 
+            #os.sys.exit()
+                
+            # update header            
+            #hdr.update('NAXIS', 3)
+            #hdr.update('NAXIS3', ncd)
+
+            print TR_radex.shape
+
+            #print hdr
             #os.sys.exit()
 
             # save results: FITS cube with the different column density maps
             pyfits.writeto("/Users/willwaalkes/Desktop/HCN_Research/Radex-Results/"+source+"-radex-"+mole+"-"+str(freq)+".fits", TR_radex,clobber=True)
-        #os.system('say "Will, Radex is complete"')            
             #pyfits.writeto("test.fits", TR_radex, clobber=True)
 
         results.close()
