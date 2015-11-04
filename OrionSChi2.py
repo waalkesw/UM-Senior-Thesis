@@ -30,9 +30,9 @@ def chi2(fmodel,fobs,ferr,fileout):
     obs = fobs
     err = ferr
     
-    gastemp = np.linspace(60,200,20)
-    gasdens = np.logspace(3,6.9,20)
-    cdens = np.logspace(13.5,16,20)
+    gastemp = np.linspace(60,220,30)
+    gasdens = np.logspace(2,8,30)
+    cdens = np.logspace(14,15,30)
     ncd = len(cdens)
     ntmp = len(gastemp)
     ndens = len(gasdens)
@@ -71,7 +71,7 @@ def chi2(fmodel,fobs,ferr,fileout):
         plt.imshow(chi2_sum[i,:,:],
                    extent=(gastemp[0],gastemp[-1],np.log10(gasdens[0]),np.log10(gasdens[-1])),
                     aspect='auto',cmap='coolwarm',
-                    vmin=500,vmax=2000)
+                    vmin=500,vmax=1000)
         plt.xlabel('Temp')
         plt.ylabel('Log (gasdens)')
         plt.title(i)
@@ -80,12 +80,14 @@ def chi2(fmodel,fobs,ferr,fileout):
       
     #PLOT THE MODEL VS OBSERVATION
     Freq = [531.7163,620.3040,708.8770,797.4333,885.9707,974.4872,1062.9807]
-    plt.scatter(Freq,obs,s=1,marker='o',edgecolor='none',label = 'Observation')
-    plt.scatter(Freq,expected,s=1,marker='o',edgecolor='none',label = 'Model')
+    plt.scatter(Freq,obs,s=7,marker='o',label = 'Observation',color='r')
+    plt.errorbar(Freq,obs,yerr=err[:],fmt='none',ecolor='k')
+    plt.scatter(Freq,model[:,indices[0],indices[1],indices[2]],s=7,marker='o',label = 'Model',color='b')
+    plt.legend(loc='upper right')
     plt.xlabel('Frequency (GHz)')
     plt.ylabel('Intensity (K*Km/s)')
     plt.title('Model vs Observations')
-    #plt.savefig(filename=file_label[i]+'-'+file_label[j]+'-T1-Tdust.eps')
+    plt.savefig(filename='Quality-of-fit.eps')
     plt.show()
     
     pyfits.writeto("/Users/willwaalkes/Desktop/HCN_Research/N-Best-Fit/"+fileout+"-chi2.fits", chi2_min, hdr, clobber=True)

@@ -95,9 +95,9 @@ def read_radex(results,freq):
  
 # Begin of main program
 def main(source):
-    gastemp = np.linspace(60,220,100)
-    gasdens = np.logspace(2,8,100)
-    cdens = np.logspace(14,16,100)
+    gastemp = np.linspace(100,220,30)
+    gasdens = np.logspace(2,8,30)
+    cdens = np.logspace(13,15,30)
     ncd = len(cdens)
     ntmp = len(gastemp)
     ndens = len(gasdens)
