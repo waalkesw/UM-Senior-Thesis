@@ -30,9 +30,9 @@ def chi2(fmodel,fobs,ferr,fileout):
     obs = fobs
     err = ferr
     
-    gastemp = np.linspace(60,220,30)
+    gastemp = np.linspace(100,220,30)
     gasdens = np.logspace(2,8,30)
-    cdens = np.logspace(14,15,30)
+    cdens = np.logspace(13,15,30)
     ncd = len(cdens)
     ntmp = len(gastemp)
     ndens = len(gasdens)
