@@ -62,7 +62,7 @@ def read_radex(results,freq):
             line  = results.readline()
             words = line.split()
     except IndexError:
-        print words[0]
+        print words
         os.sys.exit()
     tkin = words[-1] 
     line  = results.readline()
@@ -95,9 +95,9 @@ def read_radex(results,freq):
  
 # Begin of main program
 def main(source):
-    gastemp = np.linspace(100,220,30)
-    gasdens = np.logspace(2,8,30)
-    cdens = np.logspace(13,15,30)
+    gastemp = np.linspace(50,350,100)
+    gasdens = np.logspace(2,9,100)
+    cdens = np.logspace(13.5,14.5,100)
     ncd = len(cdens)
     ntmp = len(gastemp)
     ndens = len(gasdens)

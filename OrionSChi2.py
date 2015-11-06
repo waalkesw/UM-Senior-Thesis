@@ -30,9 +30,9 @@ def chi2(fmodel,fobs,ferr,fileout):
     obs = fobs
     err = ferr
     
-    gastemp = np.linspace(100,220,30)
-    gasdens = np.logspace(2,8,30)
-    cdens = np.logspace(13,15,30)
+    gastemp = np.linspace(50,350,50)
+    gasdens = np.logspace(2,9,50)
+    cdens = np.logspace(13.5,14.5,50)
     ncd = len(cdens)
     ntmp = len(gastemp)
     ndens = len(gasdens)
@@ -71,9 +71,10 @@ def chi2(fmodel,fobs,ferr,fileout):
         plt.imshow(chi2_sum[i,:,:],
                    extent=(gastemp[0],gastemp[-1],np.log10(gasdens[0]),np.log10(gasdens[-1])),
                     aspect='auto',cmap='coolwarm',
-                    vmin=500,vmax=1000)
-        plt.xlabel('Temp')
-        plt.ylabel('Log (gasdens)')
+                    vmin=550,vmax=850)
+        plt.xlabel('Temperature (K)')
+        plt.ylabel('Log (gas density)')
+        plt.colorbar(label='$\chi^2$')
         plt.title(i)
         plt.show()
         plt.clf()
